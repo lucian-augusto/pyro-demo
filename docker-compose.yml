@@ -1,0 +1,10 @@
+version: '3'
+services:
+  pyro-demo:
+    build:
+      context: ./docker
+    container_name: pyro-demo
+    entrypoint: /bin/bash
+    volumes:
+      - ./:/usr/src/pyro-demo
+    tty: true
