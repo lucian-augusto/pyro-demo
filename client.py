@@ -33,7 +33,7 @@ def create_new_user(server, daemon):
     return user
 
 def list_active_auctions(user, server):
-    server.list_auctions(user.get_name());
+    server.list_auctions(user.get_name())
 
 def register_new_auction(user, server):
     product_code = input("Please enter the product code: ")
@@ -45,7 +45,10 @@ def register_new_auction(user, server):
     server.create_new_auction(product_code, product_name, user.get_name(), user.get_reference_uri(), initial_offer, descprition, duration, user.sign_message(user.get_name()))
 
 def create_new_offer(user, server):
-    pass
+    product_code = input("Please enter the product code: ")
+    amount = float(input("Please enter your offer: "))
+
+    server.new_offer(product_code, amount, user.get_name(), user.get_reference_uri(), user.sign_message(user.get_name()))
 
 def main():
     name_server = locate_ns()

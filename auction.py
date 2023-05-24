@@ -5,7 +5,7 @@ class Auciton(object):
         self.product_name = product_name
         self.seller_name = seller_name
         self.seller_uri = seller_uri
-        self.price = initial_price,
+        self.price = initial_price
         self.duration = duration
         self.description = description
         self.signature = signature
@@ -24,7 +24,8 @@ class Auciton(object):
         )
 
     def validate_offer(self, amount):
-        return amount > self.price
+        current_price = self.price[0] if type(self.price) is tuple else self.price
+        return amount > current_price
 
     def add_offer(self, buyer_name, amount):
         if self.validate_offer(amount):

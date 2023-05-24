@@ -23,7 +23,7 @@ class AuctionHouse(object):
 
         self.user_reference_list[user_name] = user_uri
         self.user_keys[user_name] = user_key
-        new_user.publish_notification(f"User {new_user.get_name} created")
+        new_user.publish_notification(f"User {user_name} created")
 
     @expose
     def create_new_auction(self, product_code, product_name, seller_name, seller_uri, initial_price, description, duration, signature):

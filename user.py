@@ -4,8 +4,6 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Pyro5.api import expose, callback
 
-@expose
-@callback
 class User(object):
     def __init__(self, name):
         self.name = name
@@ -15,6 +13,8 @@ class User(object):
     def set_reference_uri(self, uri):
         self.reference_uri = uri
 
+    @expose
+    @callback
     def publish_notification(self, message):
         print(message, flush=True)
 
