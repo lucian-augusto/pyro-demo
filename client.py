@@ -16,7 +16,7 @@ def show_menu():
     0 - Exit''')
 
 def capture_input_selection():
-    option = input("Opcao: ")
+    option = input("Option: ")
     return int(option)
 
 def create_new_user(server, daemon):

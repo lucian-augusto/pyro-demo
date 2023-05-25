@@ -113,7 +113,8 @@ class AuctionHouse(object):
             user = Proxy(self.user_reference_list[name])
             user.publish_notification(f"Congratulations {name}, you won auction {auction.product_code}: {auction.product_name}")
             seller.publish_notification(f"The Winner is {name}")
-            del self.auctions[auction.product_code]
+            
+        del self.auctions[auction.product_code]
 
 def main():
     print("Starting Acution House Server...")
