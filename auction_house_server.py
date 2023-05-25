@@ -5,7 +5,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Pyro5.api import behavior, expose, Proxy, Daemon, locate_ns
 import base64
-import time
+import datetime
 
 @behavior(instance_mode = "single")
 class AuctionHouse(object):
@@ -46,9 +46,13 @@ class AuctionHouse(object):
         user_uri = self.user_reference_list[username]
         user = Proxy(user_uri)
         message = ""
-        for auction_code in self.auctions.keys():
-            message += self.auctions[auction_code].get_auction_info()
-            message += "\n"
+        for auction_code in self.auctions.copy().keys():
+            if (datetime.datetime.now() > self.auctions[auction_code].end_date_time):
+                self.end_auction(self.auctions[auction_code])
+
+            else:
+                message += self.auctions[auction_code].get_auction_info()
+                message += "\n"
 
         user.publish_notification(message)
 
@@ -59,7 +63,7 @@ class AuctionHouse(object):
             user.publish_notification("Invalid signature")
             return
 
-        for auction_code in self.auctions.keys():
+        for auction_code in self.auctions.copy().keys():
             if (product_code == auction_code):
                 auction = self.auctions[auction_code]
                 if (auction.add_offer(username, amount)):
@@ -74,14 +78,17 @@ class AuctionHouse(object):
 
                     self.auctions[auction_code].watch_list = interested_users
                 else:
-                    user.publish_notification("Invalid offer")
+                    if (datetime.datetime.now() > self.auctions[auction_code].end_date_time):
+                        user.publish_notification(f"Auction {auction_code} is expired.")
+                        self.end_auction(self.auctions[auction_code])
+
+                    else:
+                        user.publish_notification("Invalid offer")
 
             else:
                 user.publish_notification(f"Auction {product_code} does not exist")
 
         return
-
-        
 
     def validate_signature(self, message, user_public_key, signature):
         message_hash = SHA256.new(message.encode("utf-8"))
@@ -92,6 +99,21 @@ class AuctionHouse(object):
             return True
         except:
             return False
+
+    def end_auction(self, auction: Auciton):
+        for name in self.user_reference_list.keys():
+            user = Proxy(self.user_reference_list[name])
+            user.publish_notification(f"Auction {auction.product_code}: {auction.product_name} finished.")
+
+        seller = Proxy(auction.seller_uri)
+        seller.publish_notification(f"{auction.seller_name}, your auciton {auction.product_code} has finished.")
+
+        if (len(auction.current_buyer) != 0):
+            name = auction.current_buyer
+            user = Proxy(self.user_reference_list[name])
+            user.publish_notification(f"Congratulations {name}, you won auction {auction.product_code}: {auction.product_name}")
+            seller.publish_notification(f"The Winner is {name}")
+            del self.auctions[auction.product_code]
 
 def main():
     print("Starting Acution House Server...")
